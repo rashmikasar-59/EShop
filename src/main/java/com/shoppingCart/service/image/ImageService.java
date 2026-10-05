@@ -1,7 +1,5 @@
 package com.shoppingCart.service.image;
 
-
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,10 +41,10 @@ public class ImageService implements IImageService {
 	}
 
 	@Override
-	public Image saveImage(List<MultipartFile> files, Long productId) {
+	public  List<ImageDto> saveImage(List<MultipartFile> files, Long productId) {
 		// TODO Auto-generated method stub
 		Product product= productService.getProductById(productId);
-		List<ImageDto> imageDto= new ArrayList<>();
+		List<ImageDto> savedImageDto= new ArrayList<>();
 		for(MultipartFile file:files)
 		{
 			try {
@@ -61,16 +59,21 @@ public class ImageService implements IImageService {
 				image.setDownloadUrl(downloadUrl);
 			Image savedImage=imageRepository.save(image);
 			
-			}
-			Catch()
-			{
-				
-			}
-			
-			
-		}
-		return null;
-	}
+			 savedImage.setDownloadUrl(buildDownloadUrl+savedImage.getId());
+             imageRepository.save(savedImage);
+
+             ImageDto imageDto = new ImageDto();
+             imageDto.setId(savedImage.getId());
+             imageDto.setFileName(savedImage.getFileName());
+             imageDto.setDownloadUrl(savedImage.getDownloadUrl());
+             savedImageDto.add(imageDto);
+
+          }   catch(IOException | SQLException e){
+              throw new RuntimeException(e.getMessage());
+          }
+      }
+      return savedImageDto;
+  }
 
 	@Override
 	public void updateImage(MultipartFile file, Long imageId) {
@@ -89,4 +92,4 @@ public class ImageService implements IImageService {
 	}
 
 }
-+
+
