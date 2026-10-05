@@ -3,12 +3,17 @@ package com.shoppingCart.service.product;
 import java.util.List;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import com.shoppingCart.dto.ImageDto;
+import com.shoppingCart.dto.ProductDto;
 import com.shoppingCart.exceptions.ProductNotFoundException;
 import com.shoppingCart.model.Category;
+import com.shoppingCart.model.Image;
 import com.shoppingCart.model.Product;
 import com.shoppingCart.repository.CategoryRepository;
+import com.shoppingCart.repository.ImageRepository;
 import com.shoppingCart.repository.ProductRepository;
 import com.shoppingCart.request.AddProductRequest;
 import com.shoppingCart.request.ProductUpdateRequest;
@@ -22,6 +27,8 @@ public class ProductService implements IProductService {
 	private final ProductRepository productRepository;
 
 	private final CategoryRepository categoryRepo;
+	private final ModelMapper modelMapper;
+	private final ImageRepository imageRepository;
 
 	@Override
 	public Product addProduct(AddProductRequest request) {
@@ -143,4 +150,19 @@ public class ProductService implements IProductService {
 
 	}
 
+	@Override
+	public List<ProductDto> getConvertedProducts(List<Product> products) {
+		return products.stream().map(this::convertToDto).toList();
+	}
+
+	@Override
+    public ProductDto convertToDto(Product product) {
+    ProductDto productDto = modelMapper.map(product, ProductDto.class);
+    List<Image> images = imageRepository.findByProductId(product.getId());
+    List<ImageDto> imageDtos = images.stream()
+            .map(image -> modelMapper.map(image, ImageDto.class))
+            .toList();
+    productDto.setImages(imageDtos);
+    return productDto;
+}
 }
