@@ -41,7 +41,7 @@ public class ImageService implements IImageService {
 	}
 
 	@Override
-	public  List<ImageDto> saveImage(List<MultipartFile> files, Long productId) {
+	public  List<ImageDto> saveImages(List<MultipartFile> files, Long productId) {
 		// TODO Auto-generated method stub
 		Product product= productService.getProductById(productId);
 		List<ImageDto> savedImageDto= new ArrayList<>();
