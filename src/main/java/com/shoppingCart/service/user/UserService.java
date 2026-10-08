@@ -48,12 +48,15 @@ public class UserService implements IUserService {
 
 	}
 
-	@Override
-	public void deleteUser(Long userId) {
-		userRepository.findById(userId).ifPresentOrElse(userRepository::delete, () -> {
-			throw new ResourceNotFoundException("User not found!");
-		});
-	}
+	  @Override
+	    public void deleteUser(Long userId) {
+	        User user = userRepository.findById(userId)
+	                .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+
+	        user.softDelete();
+	        user.setAccountEnabled(false);
+	        userRepository.save(user);
+	    }
 
 	@Override
 	public UserDto convertUserToDto(User user) {

@@ -77,11 +77,13 @@ public class ProductService implements IProductService {
 
 	@Override
 	public void deleteProductById(Long id) {
-		// TODO Auto-generated method stub
-		productRepository.findById(id).ifPresentOrElse(productRepository::delete, () -> {
-			throw new ProductNotFoundException("product not found!");
+
+		productRepository.findById(id).ifPresentOrElse(product -> {
+			product.softDelete();
+			productRepository.save(product);
+		}, () -> {
+			throw new ProductNotFoundException("Product not found!");
 		});
-		;
 	}
 
 	@Override
@@ -156,13 +158,11 @@ public class ProductService implements IProductService {
 	}
 
 	@Override
-    public ProductDto convertToDto(Product product) {
-    ProductDto productDto = modelMapper.map(product, ProductDto.class);
-    List<Image> images = imageRepository.findByProductId(product.getId());
-    List<ImageDto> imageDtos = images.stream()
-            .map(image -> modelMapper.map(image, ImageDto.class))
-            .toList();
-    productDto.setImages(imageDtos);
-    return productDto;
-}
+	public ProductDto convertToDto(Product product) {
+		ProductDto productDto = modelMapper.map(product, ProductDto.class);
+		List<Image> images = imageRepository.findByProductId(product.getId());
+		List<ImageDto> imageDtos = images.stream().map(image -> modelMapper.map(image, ImageDto.class)).toList();
+		productDto.setImages(imageDtos);
+		return productDto;
+	}
 }
